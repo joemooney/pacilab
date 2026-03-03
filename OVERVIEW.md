@@ -52,6 +52,10 @@ make sim-topology    # Run topology simulation
 make test            # Unit tests
 ```
 
+## Migration Status
+
+paciLab's functionality has been migrated into pacgate as native Rust subcommands (`pacgate scenario`, `pacgate regress`, `pacgate topology`). The Rust implementation calls `simulate()` directly instead of shelling out, achieving ~600x speedup (~600K pps vs ~1K pps). The Python code in this repo remains as a reference but is superseded by the pacgate implementation.
+
 ## Related Projects
 
-- **pacgate** — The packet filtering engine that paciLab validates against
+- **pacgate** — The packet filtering engine that paciLab validates against (now includes pacilab functionality natively)
