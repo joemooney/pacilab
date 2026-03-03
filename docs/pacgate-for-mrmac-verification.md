@@ -1,16 +1,16 @@
-# How PacGate Addresses Your MRMAC Verification Needs
+# How PacGate Addresses MRMAC Verification Need
 
 ## Overview
 
-Your two queries describe building an MRMAC two-channel verification system with a packet switch — from scratch. PacGate already implements the bulk of this: packet filtering rules compile to synthesizable Verilog RTL and Python test harnesses from a single YAML specification, with built-in multi-port switching, topology simulation, and high-volume regression.
+Instead of building an MRMAC two-channel verification system with a packet switch from scratch, PacGate already implements the bulk of this: packet filtering rules compile to synthesizable Verilog RTL and Python test harnesses from a single YAML specification, with built-in multi-port switching, topology simulation, and high-volume regression.
 
-This document maps your specific requirements to existing PacGate capabilities, and identifies the pieces that remain MRMAC-specific.
+This document maps the specific requirements to existing PacGate capabilities, and identifies the pieces that remain MRMAC-specific.
 
 ---
 
-## Query 1: MRMAC Two-Channel Verification
+## MRMAC Two-Channel Verification
 
-**What you asked for:**
+**Requirements:**
 - MRMAC with two channels (10G/25G), QuestaSim simulation
 - 1000-packet verification through the system
 - Test error modes + clean packet throughput
@@ -91,9 +91,9 @@ Generates a complete Verilog RTL hierarchy:
 
 ---
 
-## Query 2: L2/L3 Packet Switch Between MRMACs
+## L2/L3 Packet Switch Between MRMACs
 
-**What you asked for:**
+**Requirements:**
 - L2/L3 switch with ingress pipeline (VLAN classify, MAC lookup, L3 route match)
 - Switch fabric (port bitmap, drop logic, flood/unicast)
 - Egress pipeline (output queue, drop counters)
@@ -106,7 +106,7 @@ Generates a complete Verilog RTL hierarchy:
 
 **Topology definition — scenario v2:**
 
-Your network map with 4 ports maps directly to a PacGate topology scenario:
+A network map with 4 ports maps directly to a PacGate topology scenario:
 
 ```json
 {
@@ -158,9 +158,9 @@ Your network map with 4 ports maps directly to a PacGate topology scenario:
 3. **Packet filter** — `simulate()` evaluates rules (L2/L3/L4 matching)
 4. **Egress routing** — destination IP matched against all other ports' subnets
 
-This is your `switch_model.py` and `network_model.py` — but running at 640K packets/sec in Rust instead of Python subprocess calls.
+This is a network switch model running at 640K packets/sec in Rust.
 
-**Drop reason tracking — built in:**
+**Drop reason tracking is built in:**
 
 ```bash
 $ pacgate topology --scenario mrmac_switch.json --json
@@ -184,7 +184,7 @@ $ pacgate topology --scenario mrmac_switch.json --json
 }
 ```
 
-Every drop is categorized — RMAC error, ingress subnet mismatch, filter rule drop, or no egress route. This is exactly the "error rate detected in the MRMAC and packets dropped in the switch" you asked for.
+Every drop is categorized — RMAC error, ingress subnet mismatch, filter rule drop, or no egress route. This provided support for error rate detection in the MRMAC and packets dropped in the switch.
 
 **L3 route matching — CIDR subnet evaluation:**
 
@@ -228,15 +228,15 @@ These are MRMAC-specific pieces that sit outside the packet processing logic:
 | **Dynamic MAC learning (CAM table)** | PacGate uses static YAML rules; a learning CAM would be custom RTL (though `--dynamic` flow tables could be adapted) |
 | **QuestaSim specifically** | PacGate targets Icarus Verilog + cocotb, but generated Verilog is simulator-portable |
 
-The key insight: the MRMAC IP and channel controller are plumbing that connects the physical interface to the packet processing pipeline. PacGate generates everything from the frame parser inward — which is the majority of what Queries 1 and 2 are building.
+The key insight: the MRMAC IP and channel controller are plumbing that connects the physical interface to the packet processing pipeline. PacGate generates everything from the frame parser inward — which is the majority of the work.
 
 ---
 
-## Side-by-Side: Your File Manifest vs PacGate
+## Side-by-Side: Python Implementation File Manifest vs PacGate
 
-### Query 1 Files
+### MRMAC Two-Channel Verification
 
-| Your file | PacGate equivalent |
+| Python file | PacGate equivalent |
 |---|---|
 | `verif/regression/python/packet_gen.py` | Generated cocotb PacketFactory + PacketDriver |
 | `verif/regression/python/packet_checker.py` | Generated cocotb Scoreboard (full L2/L3/L4 reference model) |
@@ -247,9 +247,9 @@ The key insight: the MRMAC IP and channel controller are plumbing that connects 
 | `rtl/mac_phy/mrmac_wrapper.sv` | **Not covered** — MRMAC-specific |
 | `rtl/mac_phy/mrmac_channel_ctrl.sv` | **Not covered** — MRMAC-specific |
 
-### Query 2 Files
+### L2/L3 Packet Switch Between MRMACs
 
-| Your file | PacGate equivalent |
+| Python file | PacGate equivalent |
 |---|---|
 | `rtl/fabric_if/ingress_pipeline.sv` | Generated `frame_parser` + `rule_match_N` |
 | `rtl/fabric_if/route_table.sv` | `Ipv4Prefix` CIDR matching in generated Verilog |
