@@ -4,33 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-paciLab is a system-level verification and orchestration companion for pacgate. It provides scenario validation, packet simulation (mock and real modes), topology testing, and CI-friendly JSON output.
+paciLab provides scenario definitions, JSON schemas, and example files for pacgate's scenario validation, regression testing, and topology simulation. All runtime functionality is implemented natively in pacgate as Rust subcommands.
 
 ### Architecture
-- **pacilab/** — Python package with core modules
-  - `scenario_lib.py` — Schema validation and normalization (v1/v2)
-  - `engine.py` — Packet simulation engine (mock + real pacgate modes)
-  - `run_regress.py` — High-volume regression runner
-  - `topology.py` — 2-port RMAC/L3 switch topology simulator
-  - `validate.py` — CLI scenario validator
-  - `sync.py` — Scenario import/export to central store
 - **docs/** — JSON schemas (v1, v2) and architecture docs
 - **examples/** — Sample scenarios and central store
-- **tests/** — Unit tests
 
 ### Common Commands
 ```bash
-bash bootstrap.sh && source .venv/bin/activate
 make validate          # Validate example scenarios
-make sim-regress       # Run regression (1000 packets, mock)
+make sim-regress       # Run regression (1000 packets)
 make sim-topology      # Run topology simulation
-make test              # Run unit tests
 ```
 
+Requires `pacgate` binary in PATH.
+
 ### Key Design
-- Two execution modes: `mock` (fast/deterministic) and `real` (uses pacgate binary)
 - JSON schemas enforce scenario structure (v1=basic, v2=topology-aware)
-- CI pipeline validates, simulates, and tests on every push
+- All simulation uses pacgate's native `simulate()` (~600K pps)
+- CI pipeline validates and simulates on every push
 ## Requirements Management
 
 This project uses AIDA for requirements tracking. **Do NOT maintain a separate REQUIREMENTS.md file.**

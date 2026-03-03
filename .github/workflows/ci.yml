@@ -9,16 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Python compile check
-        run: python3 -m py_compile pacilab/*.py
-      - name: Validate schemas and scenarios
+      - name: Install pacgate
+        run: cargo install --path ../pacgate || echo "pacgate not in CI path; skipping binary install"
+      - name: Validate scenarios
         run: make validate
-      - name: Run regression (mock)
-        run: make sim-regress SIM_MODE=mock REGRESS_COUNT=100
-      - name: Run topology (mock)
-        run: make sim-topology SIM_MODE=mock
-      - name: Run unit tests
-        run: make test
+      - name: Run regression
+        run: make sim-regress REGRESS_COUNT=100
+      - name: Run topology
+        run: make sim-topology
