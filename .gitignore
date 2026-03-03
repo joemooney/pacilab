@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+*.json.out
+regress_result.json
+topology_result.json
