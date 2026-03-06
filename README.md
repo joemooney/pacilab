@@ -2,6 +2,11 @@
 
 Scenario validation, regression testing, and topology simulation for pacgate.
 
+## Family Reference
+
+For the full cross-product map (PacGate, PaciNet, PaciLab, PaciLearn, PaciView, PacMate), see:
+[`PACINET_FAMILY.md`](../pacinet/PACINET_FAMILY.md)
+
 ## Scope
 
 - Scenario validation (`v1` and `v2` schemas)
@@ -25,6 +30,8 @@ make sim-topology    # Run topology simulation
 ## Project Layout
 
 - `docs/`: JSON schemas (v1, v2) and architecture docs
+- `docs/ROADMAP.md`: Rust-first implementation roadmap
+- `pacilabd/`: Rust API service scaffold for web orchestration
 - `examples/`: sample scenarios and central store
 - `.github/workflows/ci.yml`: CI checks
 
